@@ -61,16 +61,22 @@ class Vec3:
         assert isinstance(other, Vec3)
         return Vec3(self.x + other.x, self.y + other.y, self.z + other.z)
 
-    def __mul__(self, other: Self | float):
-        assert isinstance(other, (Vec3, float))
+    def __mul__(self, other: Self | float | int):
+        assert isinstance(other, (Vec3, float, int)), f"wrong type {type(other)=}"
         if isinstance(other, float):
             return Vec3(self.x * other, self.y * other, self.z * other)
         else:
             return Vec3(self.x * other, self.y * other, self.z * other)
 
-    def __truediv__(self, t: float):
-        assert isinstance(t, float)
+    def __truediv__(self, t: float | int):
+        assert isinstance(t, (float, int)), f"wrong type {type(t)=}"
         return self * (1.0 / t)
+
+    def __sub__(self, other: Self):
+        assert isinstance(other, Vec3)
+        return Vec3(
+            self.e[0] - other.e[0], self.e[1] - other.e[1], self.e[2] - other.e[2]
+        )
 
     def dot(self):
         return self.e[0] * self.e[0] + self.e[1] * self.e[1] + self.e[2] * self.e[2]
@@ -89,7 +95,7 @@ class Vec3:
 
 class Color(Vec3):
     def write_color(self, fp=sys.stdout):
-        r, g, b = color.e
+        r, g, b = self.e
         rbyte = int(255.999 * r)
         gbyte = int(255.999 * g)
         bbyte = int(255.999 * b)
@@ -137,12 +143,16 @@ if __name__ == "__main__":
     viewport_upper_left = (
         camera_center - Vec3(0, 0, focal_length) - viewport_u / 2 - viewport_v / 2
     )
+    pixel00_loc = viewport_upper_left + (pixel_delta_u + pixel_delta_v) * 0.5
 
     img_width = img_height = 256
     print(f"P3\n{img_width} {img_height}\n255")
     for j in range(img_height):
         log(f"Scanlines remaining: {img_height - j} ")
         for i in range(img_width):
-            color = Color(float(i) / (img_width - 1), float(j) / (img_height - 1), 0)
-            color.write_color()
+            pixel_center = pixel00_loc + (pixel_delta_u * i) + (pixel_delta_v * j)
+            ray_direction = pixel_center - camera_center
+            ray = Ray(camera_center, ray_direction)
+            pixel_color = ray_color(ray)
+            pixel_color.write_color()
     log("Done")
