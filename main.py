@@ -159,11 +159,10 @@ if __name__ == "__main__":
     )
     pixel00_loc = viewport_upper_left + (pixel_delta_u + pixel_delta_v) * 0.5
 
-    img_width = img_height = 256
-    print(f"P3\n{img_width} {img_height}\n255")
-    for j in range(img_height):
-        log(f"Scanlines remaining: {img_height - j} ")
-        for i in range(img_width):
+    print(f"P3\n{image_width} {image_height}\n255")
+    for j in range(image_height):
+        log(f"Scanlines remaining: {image_height - j} ")
+        for i in range(image_width):
             pixel_center = pixel00_loc + (pixel_delta_u * i) + (pixel_delta_v * j)
             ray_direction = pixel_center - camera_center
             ray = Ray(camera_center, ray_direction)
