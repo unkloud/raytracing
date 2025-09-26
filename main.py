@@ -30,7 +30,7 @@ class Vec3:
         assert 0 <= index < 3
         return self.e[index]
 
-    def __len__(self):
+    def length(self):
         return math.sqrt(self.len_squared())
 
     def __iadd__(self, other: Self):
@@ -90,7 +90,7 @@ class Vec3:
         )
 
     def unit_vector(self):
-        return self / len(self)
+        return self / self.length()
 
 
 class Color(Vec3):
@@ -100,6 +100,17 @@ class Color(Vec3):
         gbyte = int(255.999 * g)
         bbyte = int(255.999 * b)
         print(f"{rbyte} {gbyte} {bbyte}", file=fp)
+
+    def __mul__(self, other):
+        assert isinstance(other, (Color, float, int)), f"wrong type {type(other)=}"
+        if isinstance(other, (Color, float, int)):
+            return Color(self.x * other, self.y * other, self.z * other)
+        else:
+            return Color(self.x * other, self.y * other, self.z * other)
+
+    def __add__(self, other):
+        assert isinstance(other, Color)
+        return Color(self.x + other.x, self.y + other.y, self.z + other.z)
 
 
 class Point3(Vec3):
@@ -120,7 +131,10 @@ def log(msg: str, fp=sys.stderr, flush=True):
 
 
 def ray_color(ray: Ray):
-    return Color(0, 0, 0)
+    unit_direction = ray.direction.unit_vector()
+    a = 0.5 * (unit_direction.y + 1.0)
+    color = Color(1.0, 1.0, 1.0) * (1.0 - a) + Color(0.5, 0.7, 1.0) * a
+    return color
 
 
 if __name__ == "__main__":
